@@ -94,7 +94,6 @@
 	});
 	$effect(() => {
 		route;
-		console.log('Fetching logins with search params:', searchParams.toString());
 		untrack(() => {
 			loginsQuery = createQuery({
 				queryKey: ['logins', searchParams.toString() || ''],
