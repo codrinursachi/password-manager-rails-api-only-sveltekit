@@ -32,11 +32,11 @@
 
 	const pendingLoginsAdd = useMutationState({
 		filters: { mutationKey: ['login', 'add'], status: 'pending' },
-		select: (mutation) => transformToLogin(mutation.state.variables as FormData)
+		select: (mutation) => transformToLogin((mutation.state.variables as {formData: FormData})?.formData)
 	});
 	const pendingLoginsEdit = useMutationState({
 		filters: { mutationKey: ['login', 'edit'], status: 'pending' },
-		select: (mutation) => transformToLogin(mutation.state.variables as FormData)
+		select: (mutation) => transformToLogin((mutation.state.variables as {formData: FormData})?.formData)
 	});
 	const pendingLoginsTrash = useMutationState({
 		filters: { mutationKey: ['login', 'trash'], status: 'pending' },
