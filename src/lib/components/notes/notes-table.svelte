@@ -151,14 +151,15 @@
 									>
 										<Dialog.Close>
 											{#snippet child({ props })}
-												<Button
-													{...props}
-													type="button"
-													variant="destructive"
-													onclick={() => $noteMutation.mutate(note.id.toString())}
-												>
-													Delete
-												</Button>
+												<div {...props}>
+													<Button
+														type="button"
+														variant="destructive"
+														onclick={() => $noteMutation.mutate(note.id.toString())}
+													>
+														Delete
+													</Button>
+												</div>
 											{/snippet}
 										</Dialog.Close>
 									</form>
