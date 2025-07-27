@@ -9,9 +9,8 @@
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
 
-	const params = $derived(page.url.pathname.split('/').slice(1));
-	const keyId = $derived(params.find((param) => !isNaN(+param)));
-	const isNew = $derived(page.url.pathname.includes('new'));
+	const keyId = $derived(page.params.keyId);
+	const isNew = $derived(page.params.mode === 'new');
 	let dialogOpen = $state(false);
 	let sshKeyMutation = $state(
 		createMutation({

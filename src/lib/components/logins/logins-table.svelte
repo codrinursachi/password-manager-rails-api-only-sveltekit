@@ -32,11 +32,13 @@
 
 	const pendingLoginsAdd = useMutationState({
 		filters: { mutationKey: ['login', 'add'], status: 'pending' },
-		select: (mutation) => transformToLogin((mutation.state.variables as {formData: FormData})?.formData)
+		select: (mutation) =>
+			transformToLogin((mutation.state.variables as { formData: FormData })?.formData)
 	});
 	const pendingLoginsEdit = useMutationState({
 		filters: { mutationKey: ['login', 'edit'], status: 'pending' },
-		select: (mutation) => transformToLogin((mutation.state.variables as {formData: FormData})?.formData)
+		select: (mutation) =>
+			transformToLogin((mutation.state.variables as { formData: FormData })?.formData)
 	});
 	const pendingLoginsTrash = useMutationState({
 		filters: { mutationKey: ['login', 'trash'], status: 'pending' },
@@ -143,7 +145,7 @@
 				<Table.Row class={pendingEdit ? 'text-green-500' : pendingTrash ? 'text-red-500' : ''}>
 					<Table.Cell>
 						<button
-							onclick={() => goto('/logins/' + login.login_id + '/edit')}
+							onclick={() => goto('/logins/' + login.login_id + '/edit' + page.url.search)}
 							class="w-full text-left"
 						>
 							<div class="w-full">

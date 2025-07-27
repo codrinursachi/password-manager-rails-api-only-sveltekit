@@ -42,8 +42,8 @@
     let customFieldValue = $state("");
     let customFieldId = $state("");
     let checkboxValue = $state(false);
-    function changePassword(password: string) {
-        password = password;
+    function changePassword(newPassword: string) {
+        password = newPassword;
     }
     const loginQuery = createQuery({
         queryKey: ["individualLogin", id],

@@ -9,9 +9,8 @@
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
 
-	const params = $derived(page.url.pathname.split('/').slice(1));
-	const noteId = $derived(params.find((param) => !isNaN(+param.toString())));
-	const isNew = $derived(page.url.pathname.includes('new'));
+	const noteId = $derived(page.params.noteId);
+	const isNew = $derived(page.params.mode === 'new');
 	let dialogOpen = $state(false);
 	let noteMutation = createMutation({
 		mutationKey: ['note', () => (noteId ? 'edit' : 'add')],

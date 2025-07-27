@@ -9,10 +9,9 @@
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
 
-	const params = $derived(page.url.pathname.split('/').slice(1));
-	const loginId = $derived(params.find((param) => !isNaN(+param.toString())));
-	let isNew = $derived(page.url.pathname.includes('new'));
-	let isEditable = $derived(page.url.pathname.includes('edit'));
+	const loginId = $derived(page.params.loginId);
+	let isNew = $derived(page.params.mode === 'new');
+	let isEditable = $derived(page.params.mode === 'edit');
 	let dialogOpen = $state(false);
 	let valid = $state(false);
 	const handleValid = (newValid: boolean) => {
@@ -99,7 +98,7 @@
 			onsubmit={(e) => {
 				e.preventDefault();
 				if (valid) {
-					$loginMutation.mutate({formData: new FormData(e.target as HTMLFormElement), loginId});
+					$loginMutation.mutate({ formData: new FormData(e.target as HTMLFormElement), loginId });
 					window.history.back();
 				}
 			}}

@@ -10,7 +10,7 @@
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
 
-	const queryParameter = $derived(page.url.pathname.includes('by-me') ? 'by_me=true' : '');
+	const queryParameter = $derived(page.params.sharingMode === 'by-me' ? 'by_me=true' : '');
 	const sharedLoginsQuery = createQuery({
 		// svelte-ignore state_referenced_locally
 		queryKey: ['sharedLogins', queryParameter],
