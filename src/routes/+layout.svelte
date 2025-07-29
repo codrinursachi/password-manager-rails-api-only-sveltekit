@@ -11,12 +11,12 @@
 	beforeNavigate(() => {
 		BProgress.start();
 		document.querySelector('#overlay')?.classList.add('opacity-50');
-		document.querySelector('#loading')?.classList.toggle('hidden');
+		document.querySelector('#loading')?.classList.remove('hidden');
 	});
 
 	afterNavigate(() => {
 		BProgress.done();
-		document.querySelector('#loading')?.classList.toggle('hidden');
+		document.querySelector('#loading')?.classList.add('hidden');
 		document.querySelector('#overlay')?.classList.remove('opacity-50');
 	});
 
