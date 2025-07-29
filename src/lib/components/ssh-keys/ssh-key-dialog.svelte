@@ -8,7 +8,9 @@
 	import { createMutation } from '@tanstack/svelte-query';
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 
+	const { data } = $props();
 	const keyId = $derived(page.params.keyId);
 	const isNew = $derived(page.params.mode === 'new');
 	let dialogOpen = $state(false);
@@ -38,6 +40,7 @@
 			},
 			onSettled: () => {
 				queryClient.invalidateQueries({ queryKey: ['sshKeys'] });
+                invalidateAll();
 			}
 		})
 	);
@@ -68,6 +71,7 @@
 					},
 					onSettled: () => {
 						queryClient.invalidateQueries({ queryKey: ['sshKeys'] });
+						invalidateAll();
 					}
 				});
 			}
@@ -103,7 +107,7 @@
 			}}
 			encType="multipart/form-data"
 		>
-			<SSHKeyFormInputs />
+			<SSHKeyFormInputs {data} />
 			<Dialog.Footer class="sm:justify-start">
 				<Dialog.Close>
 					{#snippet child({ props })}

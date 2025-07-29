@@ -3,13 +3,10 @@
 	import { mutateLogin } from '$lib/util/mutate-utils/mutate-login';
 	import { mutateSharedLogin } from '$lib/util/mutate-utils/mutate-shared-login';
 	import { queryClient } from '$lib/util/query-utils/query-client';
-	import { queryLogins } from '$lib/util/query-utils/query-logins';
 	import { toast } from 'svelte-sonner';
-	import TableContentSkeleton from '../skeletons/table-content-skeleton.svelte';
 	import LoginDropdown from './login-dropdown.svelte';
-	import { untrack } from 'svelte';
 	import { createMutation, createQuery, useMutationState } from '@tanstack/svelte-query';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
 
 	type Login = {
@@ -20,6 +17,8 @@
 		login_password: string;
 		iv: string;
 	};
+
+	const { data } = $props();
 
 	const transformToLogin = (individualFormData: FormData): Login => ({
 		login_id: parseInt(individualFormData.get('login[login_id]')?.toString() ?? '0'),
@@ -45,15 +44,6 @@
 		select: (mutation) => parseInt(mutation.state.variables as string)
 	});
 
-	const searchParams = $derived(page.url.searchParams.toString());
-	const route = $derived(page.url.pathname + page.url.search);
-	let loginsQuery = $state(
-		createQuery<{ logins: Login[] }>({
-			// svelte-ignore state_referenced_locally
-			queryKey: ['logins', searchParams.toString() || ''],
-			queryFn: ({ signal }) => queryLogins(searchParams.toString() || '', signal)
-		})
-	);
 	const loginMutation = createMutation({
 		mutationKey: ['login', 'trash'],
 		mutationFn: async (loginId: string) => {
@@ -71,6 +61,7 @@
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ['logins', ''] });
+			invalidateAll();
 		}
 	});
 	const sharedLoginMutation = createMutation({
@@ -92,34 +83,26 @@
 			queryClient.invalidateQueries({
 				queryKey: ['shared-logins', 'by_me=true']
 			});
+            invalidateAll();
 		}
 	});
-	$effect(() => {
-		route;
-		untrack(() => {
-			loginsQuery = createQuery({
-				queryKey: ['logins', searchParams.toString() || ''],
-				queryFn: ({ signal }) => queryLogins(searchParams.toString() || '', signal)
-			});
-		});
-	});
-	$effect(() => {
-		if ($loginsQuery.error) {
-			toast.error(
-				$loginsQuery.error instanceof Error ? $loginsQuery.error.message : 'Unknown error',
-				{
-					description: 'Failed to load logins.',
-					action: {
-						label: 'Retry',
-						onClick: () =>
-							queryClient.invalidateQueries({
-								queryKey: ['logins', searchParams?.toString() ?? '']
-							})
-					}
-				}
-			);
-		}
-	});
+	// $effect(() => {
+	// 	if ($loginsQuery.error) {
+	// 		toast.error(
+	// 			$loginsQuery.error instanceof Error ? $loginsQuery.error.message : 'Unknown error',
+	// 			{
+	// 				description: 'Failed to load logins.',
+	// 				action: {
+	// 					label: 'Retry',
+	// 					onClick: () =>
+	// 						queryClient.invalidateQueries({
+	// 							queryKey: ['logins', searchParams?.toString() ?? '']
+	// 						})
+	// 				}
+	// 			}
+	// 		);
+	// 	}
+	// });
 </script>
 
 <Table.Root class="table-fixed">
@@ -132,56 +115,52 @@
 		</Table.Row>
 	</Table.Header>
 	<Table.Body>
-		{#if !$loginsQuery.isSuccess}
-			<TableContentSkeleton cellNumber={4} />
-		{:else}
-			{#each $loginsQuery.data?.logins as login (login.login_id)}
-				{@const pendingEdit = $pendingLoginsEdit.find(
-					(pendingLogin) => pendingLogin.login_id === login.login_id
-				)}
-				{@const pendingTrash = $pendingLoginsTrash.find(
-					(pendingLogin) => pendingLogin === login.login_id
-				)}
-				<Table.Row class={pendingEdit ? 'text-green-500' : pendingTrash ? 'text-red-500' : ''}>
-					<Table.Cell>
-						<button
-							onclick={() => goto('/logins/' + login.login_id + '/edit' + page.url.search)}
-							class="w-full text-left"
-						>
-							<div class="w-full">
-								{pendingEdit?.name ?? login.name}
-							</div>
-						</button>
-					</Table.Cell>
-					<Table.Cell>{login.login_name}</Table.Cell>
-					<Table.Cell>
-						<a
-							href={((pendingEdit?.urls[0] ?? login.urls[0]).includes('http') &&
-								(pendingEdit?.urls[0] ?? login.urls[0])) ||
-								'//' + (pendingEdit?.urls[0] ?? login.urls[0])}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							<div class="w-full">
-								{pendingEdit?.urls[0] ?? login.urls[0]}
-							</div>
-						</a>
-					</Table.Cell>
-					<Table.Cell>
-						{#if !pendingEdit && !pendingTrash && login.login_id}
-							<LoginDropdown {login} {loginMutation} {sharedLoginMutation} />
-						{/if}
-					</Table.Cell>
-				</Table.Row>
-			{/each}
-			{#each $pendingLoginsAdd as login, index (index)}
-				<Table.Row class="text-gray-500">
-					<Table.Cell>{login.name}</Table.Cell>
-					<Table.Cell>{login.login_name}</Table.Cell>
-					<Table.Cell>{login.urls[0]}</Table.Cell>
-					<Table.Cell />
-				</Table.Row>
-			{/each}
-		{/if}
+		{#each data as login (login.login_id)}
+			{@const pendingEdit = $pendingLoginsEdit.find(
+				(pendingLogin) => pendingLogin.login_id === login.login_id
+			)}
+			{@const pendingTrash = $pendingLoginsTrash.find(
+				(pendingLogin) => pendingLogin === login.login_id
+			)}
+			<Table.Row class={pendingEdit ? 'text-green-500' : pendingTrash ? 'text-red-500' : ''}>
+				<Table.Cell>
+					<button
+						onclick={() => goto('/logins/' + login.login_id + '/edit' + page.url.search)}
+						class="w-full text-left"
+					>
+						<div class="w-full">
+							{pendingEdit?.name ?? login.name}
+						</div>
+					</button>
+				</Table.Cell>
+				<Table.Cell>{login.login_name}</Table.Cell>
+				<Table.Cell>
+					<a
+						href={((pendingEdit?.urls[0] ?? login.urls[0]).includes('http') &&
+							(pendingEdit?.urls[0] ?? login.urls[0])) ||
+							'//' + (pendingEdit?.urls[0] ?? login.urls[0])}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<div class="w-full">
+							{pendingEdit?.urls[0] ?? login.urls[0]}
+						</div>
+					</a>
+				</Table.Cell>
+				<Table.Cell>
+					{#if !pendingEdit && !pendingTrash && login.login_id}
+						<LoginDropdown {login} {loginMutation} {sharedLoginMutation} />
+					{/if}
+				</Table.Cell>
+			</Table.Row>
+		{/each}
+		{#each $pendingLoginsAdd as login, index (index)}
+			<Table.Row class="text-gray-500">
+				<Table.Cell>{login.name}</Table.Cell>
+				<Table.Cell>{login.login_name}</Table.Cell>
+				<Table.Cell>{login.urls[0]}</Table.Cell>
+				<Table.Cell />
+			</Table.Row>
+		{/each}
 	</Table.Body>
 </Table.Root>

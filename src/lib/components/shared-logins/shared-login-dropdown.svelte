@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { decryptAES, decryptRSAPassword } from '$lib/util/crypt-utils/cryptography';
@@ -42,6 +43,7 @@
 			queryClient.invalidateQueries({
 				queryKey: ['sharedLogins', byMe ? 'by_me=true' : '']
 			});
+            invalidateAll();
 		}
 	});
 	$effect(() => {
@@ -64,6 +66,7 @@
 				queryClient.invalidateQueries({
 					queryKey: ['sharedLogins', byMe ? 'by_me=true' : '']
 				});
+                invalidateAll();
 			}
 		});
 	});

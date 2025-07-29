@@ -8,7 +8,9 @@
 	import { createMutation } from '@tanstack/svelte-query';
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 
+	const { data } = $props();
 	const noteId = $derived(page.params.noteId);
 	const isNew = $derived(page.params.mode === 'new');
 	let dialogOpen = $state(false);
@@ -38,6 +40,7 @@
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries({ queryKey: ['notes'] });
+			invalidateAll();
 		}
 	});
 	$effect(() => {
@@ -70,6 +73,7 @@
 					},
 					onSettled: () => {
 						queryClient.invalidateQueries({ queryKey: ['notes'] });
+						invalidateAll();
 					}
 				});
 			}
@@ -100,7 +104,7 @@
 				$noteMutation.mutate({ formData, noteId });
 			}}
 		>
-			<NotesFormInputs />
+			<NotesFormInputs {data} />
 			<Dialog.Footer class="sm:justify-start">
 				<Dialog.Close>
 					{#snippet child({ props })}

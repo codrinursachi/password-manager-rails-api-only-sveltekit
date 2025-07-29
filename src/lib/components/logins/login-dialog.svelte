@@ -9,6 +9,7 @@
 	import { page } from '$app/state';
 	import { untrack } from 'svelte';
 
+	const { data } = $props();
 	const loginId = $derived(page.params.loginId);
 	let isNew = $derived(page.params.mode === 'new');
 	let isEditable = $derived(page.params.mode === 'edit');
@@ -104,7 +105,7 @@
 			}}
 			encType="multipart/form-data"
 		>
-			<LoginFormInputs isEditable={isEditable || isNew} setValid={handleValid} />
+			<LoginFormInputs isEditable={isEditable || isNew} setValid={handleValid} {data} />
 			<Dialog.Footer class="sm:justify-start" hidden={!isEditable && !isNew}>
 				<Dialog.Close>
 					{#snippet child({ props })}

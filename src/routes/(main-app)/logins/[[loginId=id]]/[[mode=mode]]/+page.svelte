@@ -4,6 +4,8 @@
 	import LoginSearchForm from '$lib/components/logins/login-search-form.svelte';
 	import LoginsTable from '$lib/components/logins/logins-table.svelte';
 	import { Button } from '$lib/components/ui/button';
+
+	const { data } = $props();
 </script>
 
 <div class="flex flex-col gap-4">
@@ -18,6 +20,6 @@
 	>
 		Create login
 	</Button>
-	<LoginDialog />
-	<LoginsTable />
+	<LoginDialog data={{ folders: data.folders, individualLogin: data.individualLogin }} />
+	<LoginsTable data={data.logins} />
 </div>
